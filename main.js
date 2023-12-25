@@ -105,7 +105,7 @@ function calcProdability() {
     logList = process.argv[3] === "true";
   }
 
-  console.log("Number of attempts set to:", numberOfGames);
+  console.log("Number of attempts set to:", numberOfGames, `\n`);
 
   const printPoint = parseInt(numberOfGames / 10);
 

@@ -44,14 +44,20 @@ function printBoxList(list) {
 }
 
 function shuffleBoxList(list) {
-  for (let i = 0; i < 100; i++) {
-    const randomIndex = getRandomInt(100);
+  let currentIndex = list.length;
+  let randomIndex;
 
-    const currentValue = list[i];
-    const randomValue = list[randomIndex];
+  // While there remain elements to shuffle.
+  while (currentIndex > 0) {
+    // Pick a remaining element.
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
 
-    list[i] = randomValue;
-    list[randomIndex] = currentValue;
+    // And swap it with the current element.
+    [list[currentIndex], list[randomIndex]] = [
+      list[randomIndex],
+      list[currentIndex],
+    ];
   }
 }
 
@@ -67,11 +73,15 @@ function attemptToFindNumber(startNumber, list) {
   return [false, null];
 }
 
-function playGame() {
+function playGame(logList = false) {
   const boxList = createBoxList();
-  printBoxList(boxList);
+  if (logList) {
+    printBoxList(boxList);
+  }
   shuffleBoxList(boxList);
-  printBoxList(boxList);
+  if (logList) {
+    printBoxList(boxList);
+  }
 
   for (let i = 0; i < 100; i++) {
     const res = attemptToFindNumber(i, boxList);
@@ -82,22 +92,38 @@ function playGame() {
   return true;
 }
 
-/**
- * Game
- */
+function calcProdability() {
+  let winGames = 0;
+  let numberOfGames = 1_000;
+  let logList = false;
 
-let winGames = 0;
-const numberOfGames = 1000;
+  if (process.argv.length >= 3) {
+    numberOfGames = parseInt(process.argv[2]);
+  }
 
-for (let i = 0; i < numberOfGames; i++) {
-  const gameRes = playGame();
-  if (gameRes) {
-    winGames++;
+  if (process.argv.length >= 4) {
+    logList = process.argv[3] === "true";
   }
-  const round = i + 1;
-  if (round % 10_000 === 0) {
-    console.log("PlayGames attempt done:", round);
+
+  console.log("Number of attempts set to:", numberOfGames);
+
+  const printPoint = parseInt(numberOfGames / 10);
+
+  for (let i = 0; i < numberOfGames; i++) {
+    const gameRes = playGame(logList);
+    if (gameRes) {
+      winGames++;
+    }
+    const round = i + 1;
+    if (round % printPoint === 0) {
+      console.log("PlayGames attempt done:", round);
+    }
   }
+  console.log("\nWin rate:", (winGames / numberOfGames) * 100, "%");
 }
 
-console.log("Win rate:", (winGames / numberOfGames) * 100, "%");
+/**
+ * Run
+ */
+
+calcProdability();
